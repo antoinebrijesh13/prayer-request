@@ -10,11 +10,14 @@
 }
 
 .header h1 {
-  font-size: 32px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -1px;
   margin-bottom: 8px;
-  color: #1d1d1f;
+  background: linear-gradient(135deg, #1a1a1a 0%, #555555 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header p {
