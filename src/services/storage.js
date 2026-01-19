@@ -1,42 +1,63 @@
-// Storage service using window.storage API
+// Storage service using Supabase
+import { supabase } from './supabase';
 
-const STORAGE_KEY = 'prayer-requests';
-
-export const saveRequests = async (requests) => {
+export const saveRequest = async (request) => {
   try {
-    if (window.storage) {
-      await window.storage.set(STORAGE_KEY, JSON.stringify(requests));
-    } else {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
-    }
+    const { data, error } = await supabase
+      .from('prayer_requests')
+      .insert([{
+        name: request.name,
+        request: request.request,
+        created_at: new Date().toISOString()
+      }]);
+    
+    if (error) throw error;
+    return data;
   } catch (error) {
-    console.error('Error saving requests:', error);
+    console.error('Error saving request:', error);
+    throw error;
   }
 };
 
 export const loadRequests = async () => {
   try {
-    if (window.storage) {
-      const data = await window.storage.get(STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
-    } else {
-      const data = localStorage.getItem(STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
-    }
+    const { data, error } = await supabase
+      .from('prayer_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
   } catch (error) {
     console.error('Error loading requests:', error);
     return [];
   }
 };
 
+export const deleteRequest = async (id) => {
+  try {
+    const { error } = await supabase
+      .from('prayer_requests')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error deleting request:', error);
+    throw error;
+  }
+};
+
 export const clearRequests = async () => {
   try {
-    if (window.storage) {
-      await window.storage.delete(STORAGE_KEY);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    const { error } = await supabase
+      .from('prayer_requests')
+      .delete()
+      .neq('id', 0); // Delete all
+    
+    if (error) throw error;
   } catch (error) {
     console.error('Error clearing requests:', error);
+    throw error;
   }
 };

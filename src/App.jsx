@@ -1,35 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
-import { saveRequests, loadRequests } from './services/storage';
+import { saveRequest } from './services/storage';
 
 function App() {
-  const [requests, setRequests] = useState([]);
   const [name, setName] = useState('');
   const [request, setRequest] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    loadRequests().then(saved => {
-      if (saved?.length) setRequests(saved);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (requests.length > 0) saveRequests(requests);
-  }, [requests]);
-
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!name.trim() || !request.trim()) return;
     
-    setRequests(prev => [...prev, {
-      id: Date.now(),
-      name: name.trim(),
-      request: request.trim()
-    }]);
-    setName('');
-    setRequest('');
-    setSubmitted(true);
+    setIsSubmitting(true);
+    try {
+      await saveRequest({
+        name: name.trim(),
+        request: request.trim()
+      });
+      setName('');
+      setRequest('');
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting:', error);
+      alert('Error submitting request. Please try again.');
+    }
+    setIsSubmitting(false);
   };
 
   const handleAddAnother = () => {
@@ -66,6 +62,7 @@ function App() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
+              disabled={isSubmitting}
             />
           </div>
           <div className="form-group">
@@ -74,10 +71,11 @@ function App() {
               value={request}
               onChange={(e) => setRequest(e.target.value)}
               placeholder="What would you like prayer for?"
+              disabled={isSubmitting}
             />
           </div>
-          <button type="submit" className="btn btn-primary">
-            Submit
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </div>
