@@ -34,26 +34,22 @@
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.02);
 }
 
-/* Success Card */
-.success-card {
-  background: rgba(52, 199, 89, 0.1);
-  border: 1px solid rgba(52, 199, 89, 0.2);
-  padding: 20px;
+/* Success Page */
+.success-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
   text-align: center;
-  animation: fadeInOut 2.5s ease forwards;
+  gap: 24px;
 }
 
-.success-message {
-  font-size: 16px;
-  font-weight: 500;
-  color: #34c759;
-}
-
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(-10px); }
-  15% { opacity: 1; transform: translateY(0); }
-  85% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-10px); }
+.success-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.5px;
 }
 
 .card-title {

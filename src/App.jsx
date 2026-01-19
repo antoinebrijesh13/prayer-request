@@ -6,7 +6,7 @@ function App() {
   const [requests, setRequests] = useState([]);
   const [name, setName] = useState('');
   const [request, setRequest] = useState('');
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     loadRequests().then(saved => {
@@ -29,26 +29,34 @@ function App() {
     }]);
     setName('');
     setRequest('');
-    
-    // Show success card
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 2500);
+    setSubmitted(true);
   };
 
+  const handleAddAnother = () => {
+    setSubmitted(false);
+  };
+
+  // Success Page
+  if (submitted) {
+    return (
+      <div className="app">
+        <div className="success-page">
+          <div className="success-title">Request added, thank you!</div>
+          <button className="btn btn-secondary" onClick={handleAddAnother}>
+            Add another request
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Form Page
   return (
     <div className="app">
       <header className="header">
         <h1>Prayer Requests</h1>
       </header>
 
-      {/* Success Card */}
-      {showSuccess && (
-        <div className="card success-card">
-          <div className="success-message">Request added</div>
-        </div>
-      )}
-
-      {/* Add Form */}
       <div className="card">
         <form onSubmit={handleAdd}>
           <div className="form-group">
