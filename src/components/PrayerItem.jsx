@@ -1,18 +1,9 @@
 export default function PrayerItem({ request, onDelete }) {
-  const formatDisplayDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
-
   return (
     <div className="prayer-item">
       <div className="prayer-item-content">
         <div className="prayer-item-name">{request.name}</div>
         <div className="prayer-item-request">{request.request}</div>
-        <div className="prayer-item-date">{formatDisplayDate(request.date)}</div>
       </div>
       <button 
         className="prayer-item-delete" 

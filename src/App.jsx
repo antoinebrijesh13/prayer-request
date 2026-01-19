@@ -1,171 +1,200 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-
-import PrayerForm from './components/PrayerForm';
-import PrayerList from './components/PrayerList';
-import AIOptions from './components/AIOptions';
-import ImageSelector from './components/ImageSelector';
-import PreviewPanel from './components/PreviewPanel';
-import ConfirmModal from './components/ConfirmModal';
-import { ToastContainer } from './components/Toast';
-
 import { saveRequests, loadRequests, clearRequests } from './services/storage';
-import { suggestBibleVerse, polishPrayerText } from './services/claude';
+import { suggestBibleVerse } from './services/claude';
 import { getRandomSpiritualImage } from './services/unsplash';
+import { formatPost } from './utils/formatPost';
 
 function App() {
   const [requests, setRequests] = useState([]);
+  const [name, setName] = useState('');
+  const [request, setRequest] = useState('');
   const [bibleVerse, setBibleVerse] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
-  const [usePolishedText, setUsePolishedText] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
-  const [toasts, setToasts] = useState([]);
+  const [toast, setToast] = useState(null);
 
-  // Load saved requests on mount
   useEffect(() => {
-    const load = async () => {
-      const saved = await loadRequests();
-      if (saved.length > 0) {
-        setRequests(saved);
-      }
-    };
-    load();
+    loadRequests().then(saved => {
+      if (saved?.length) setRequests(saved);
+    });
   }, []);
 
-  // Save requests when they change
   useEffect(() => {
-    if (requests.length > 0) {
-      saveRequests(requests);
-    }
+    if (requests.length > 0) saveRequests(requests);
   }, [requests]);
 
-  const showToast = (message, type = 'info') => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2500);
   };
 
-  const removeToast = (id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+  const handleAdd = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !request.trim()) return;
+    
+    setRequests(prev => [...prev, {
+      id: Date.now(),
+      name: name.trim(),
+      request: request.trim()
+    }]);
+    setName('');
+    setRequest('');
+    showToast('Added');
   };
 
-  const handleAddRequest = (newRequest) => {
-    setRequests((prev) => [...prev, newRequest]);
-    showToast('Prayer request added!', 'success');
+  const handleDelete = (id) => {
+    setRequests(prev => prev.filter(r => r.id !== id));
   };
 
-  const handleDeleteRequest = (id) => {
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-    showToast('Request removed', 'info');
-  };
-
-  const handleClearAll = () => {
-    setShowClearModal(true);
-  };
-
-  const confirmClearAll = async () => {
+  const handleClearAll = async () => {
     setRequests([]);
     setBibleVerse(null);
     setImageUrl(null);
     await clearRequests();
     setShowClearModal(false);
-    showToast('All requests cleared', 'success');
+    showToast('Cleared');
   };
 
-  const handleGeneratePost = async () => {
+  const handleGenerate = async () => {
     if (requests.length === 0) return;
-
     setIsGenerating(true);
     try {
-      // Get Bible verse suggestion
       const verse = await suggestBibleVerse(requests);
       setBibleVerse(verse);
-
-      // Get random image if none selected
       if (!imageUrl) {
-        const image = await getRandomSpiritualImage();
-        setImageUrl(image.url);
+        const img = await getRandomSpiritualImage();
+        setImageUrl(img.url);
       }
-
-      // Polish text if option is enabled
-      if (usePolishedText) {
-        const polishedRequests = await Promise.all(
-          requests.map(async (req) => {
-            if (!req.polishedRequest) {
-              try {
-                const polished = await polishPrayerText(req.name, req.request);
-                return { ...req, polishedRequest: polished };
-              } catch {
-                return req;
-              }
-            }
-            return req;
-          })
-        );
-        setRequests(polishedRequests);
-      }
-
-      showToast('Post generated successfully!', 'success');
-    } catch (error) {
-      console.error('Error generating post:', error);
-      showToast('Error generating post. Please try again.', 'error');
+      showToast('Generated');
+    } catch (err) {
+      showToast('Error generating');
     }
     setIsGenerating(false);
   };
 
+  const handleCopy = async () => {
+    const output = formatPost(imageUrl, bibleVerse, requests, false);
+    await navigator.clipboard.writeText(output);
+    showToast('Copied');
+  };
+
+  const preview = requests.length > 0 
+    ? formatPost(imageUrl, bibleVerse, requests, false)
+    : 'Add prayer requests to see preview...';
+
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>🙏 Prayer Request Manager</h1>
-        <p>Collect prayer requests and format them for sharing</p>
+      <header className="header">
+        <h1>Prayer Requests</h1>
+        <p>Collect and share prayer requests</p>
       </header>
 
-      <div className="app-content">
-        <div className="input-section">
-          <PrayerForm onAdd={handleAddRequest} />
-          
-          <PrayerList 
-            requests={requests} 
-            onDelete={handleDeleteRequest}
-            onClearAll={handleClearAll}
-          />
-        </div>
-
-        <div className="preview-section">
-          <AIOptions
-            requests={requests}
-            bibleVerse={bibleVerse}
-            onBibleVerseChange={setBibleVerse}
-            usePolishedText={usePolishedText}
-            onUsePolishedTextChange={setUsePolishedText}
-            onGeneratePost={handleGeneratePost}
-            isGenerating={isGenerating}
-          />
-          
-          <ImageSelector
-            imageUrl={imageUrl}
-            onImageChange={setImageUrl}
-          />
-          
-          <PreviewPanel
-            requests={requests}
-            bibleVerse={bibleVerse}
-            imageUrl={imageUrl}
-            usePolishedText={usePolishedText}
-            onShowToast={showToast}
-          />
-        </div>
+      {/* Add Form */}
+      <div className="card">
+        <form onSubmit={handleAdd}>
+          <div className="form-group">
+            <label>Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="최하늘 Haneul"
+            />
+          </div>
+          <div className="form-group">
+            <label>Prayer Request</label>
+            <textarea
+              value={request}
+              onChange={(e) => setRequest(e.target.value)}
+              placeholder="What would you like prayer for?"
+            />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Add Request
+          </button>
+        </form>
       </div>
 
-      <ConfirmModal
-        isOpen={showClearModal}
-        title="Clear All Requests?"
-        message="This will remove all prayer requests. This action cannot be undone."
-        onConfirm={confirmClearAll}
-        onCancel={() => setShowClearModal(false)}
-      />
+      {/* Prayer List */}
+      {requests.length > 0 && (
+        <div className="card">
+          <div className="section-header">
+            <h2>Requests</h2>
+            <span className="count">{requests.length}</span>
+          </div>
+          <div className="prayer-list">
+            {requests.map(r => (
+              <div key={r.id} className="prayer-item">
+                <div className="prayer-item-content">
+                  <div className="prayer-item-name">{r.name}</div>
+                  <div className="prayer-item-text">{r.request}</div>
+                </div>
+                <button 
+                  className="prayer-item-delete"
+                  onClick={() => handleDelete(r.id)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
+            <button 
+              className="btn btn-primary"
+              onClick={handleGenerate}
+              disabled={isGenerating}
+            >
+              {isGenerating ? <><span className="loading"></span> Generating...</> : 'Generate with AI'}
+            </button>
+            <button 
+              className="btn btn-secondary btn-danger"
+              onClick={() => setShowClearModal(true)}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
 
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      {/* Preview */}
+      {requests.length > 0 && (
+        <div className="card">
+          <div className="card-title">Preview</div>
+          <div className="preview-box">{preview}</div>
+          <div className="preview-actions">
+            <button className="btn btn-primary" onClick={handleCopy}>
+              Copy to Clipboard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Modal */}
+      {showClearModal && (
+        <div className="modal-overlay" onClick={() => setShowClearModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Clear all requests?</h3>
+            <p>This cannot be undone.</p>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowClearModal(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" style={{background: 'var(--danger)'}} onClick={handleClearAll}>
+                Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="toast-container">
+          <div className="toast">{toast}</div>
+        </div>
+      )}
     </div>
   );
 }

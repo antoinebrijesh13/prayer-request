@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { getTodayDate } from '../utils/formatPost';
 
 export default function PrayerForm({ onAdd }) {
   const [name, setName] = useState('');
   const [request, setRequest] = useState('');
-  const [date, setDate] = useState(getTodayDate());
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,7 +13,6 @@ export default function PrayerForm({ onAdd }) {
       id: Date.now(),
       name: name.trim(),
       request: request.trim(),
-      date,
       createdAt: new Date().toISOString()
     });
     
@@ -30,26 +27,15 @@ export default function PrayerForm({ onAdd }) {
       </div>
       
       <form className="prayer-form" onSubmit={handleSubmit}>
-        <div className="form-row">
-          <div>
-            <label htmlFor="name">Name</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., 최하늘 Haneul"
-            />
-          </div>
-          <div>
-            <label htmlFor="date">Date</label>
-            <input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
+        <div>
+          <label htmlFor="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g., 최하늘 Haneul"
+          />
         </div>
         
         <div>

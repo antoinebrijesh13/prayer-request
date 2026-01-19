@@ -1,7 +1,7 @@
 // Format the final post output
 
-export const formatPost = (date, imageUrl, bibleVerse, requests, usePolished = false) => {
-  const dateStr = formatDate(date);
+export const formatPost = (imageUrl, bibleVerse, requests, usePolished = false) => {
+  const dateStr = formatDate(new Date());
   
   let output = `Prayer requests of ${dateStr}\n\n`;
   
@@ -30,7 +30,6 @@ export const formatPost = (date, imageUrl, bibleVerse, requests, usePolished = f
 
 export const formatDate = (date) => {
   const d = new Date(date);
-  const options = { month: 'long', day: 'numeric' };
   
   // Add ordinal suffix
   const day = d.getDate();
@@ -41,8 +40,4 @@ export const formatDate = (date) => {
   
   const month = d.toLocaleDateString('en-US', { month: 'long' });
   return `${month} ${day}${suffix}`;
-};
-
-export const getTodayDate = () => {
-  return new Date().toISOString().split('T')[0];
 };

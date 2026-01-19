@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { formatPost, getTodayDate } from '../utils/formatPost';
+import { formatPost } from '../utils/formatPost';
 
 export default function PreviewPanel({ 
   requests, 
@@ -9,7 +8,6 @@ export default function PreviewPanel({
   onShowToast 
 }) {
   const formattedOutput = formatPost(
-    getTodayDate(),
     imageUrl,
     bibleVerse,
     requests,
