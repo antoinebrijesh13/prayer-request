@@ -23,51 +23,33 @@ function formatDate() {
   return `${month} ${day}${suffix}`
 }
 
-// Generate Bible verse using Claude API
-async function generateBibleVerse(requests: any[]) {
-  const requestsList = requests.map(r => `${r.name} - ${r.request}`).join('\n')
-  
-  const prompt = `Analyze these prayer requests and suggest ONE relevant Bible verse:
-
-${requestsList}
-
-Respond in this exact format only:
-[Verse Reference] NIV
-[Verse Number] [Verse Text]
-[Bible.com URL]
-
-Example:
-Psalms 133:1 NIV
-[1] How good and pleasant it is when God's people live together in unity!
-https://bible.com/bible/111/psa.133.1.NIV
-
-Consider themes like: unity, strength, guidance, hope, perseverance, faith, healing, peace.`
-
+// Get verse of the day from ourManna API
+async function getVerseOfTheDay() {
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'x-api-key': Deno.env.get('ANTHROPIC_API_KEY') || ''
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    })
-
+    // Using ourManna API - free, no auth required
+    const response = await fetch('https://beta.ourmanna.com/api/v1/get?format=json&order=daily')
+    
     if (!response.ok) {
-      console.error('Claude API error:', response.status)
-      return 'Psalms 23:1 NIV\n[1] The LORD is my shepherd, I lack nothing.\nhttps://bible.com/bible/111/psa.23.1.NIV'
+      throw new Error(`API error: ${response.status}`)
     }
 
     const data = await response.json()
-    return data.content[0].text.trim()
+    const verse = data.verse
+    
+    // Format the verse
+    const reference = verse.details.reference
+    const text = verse.details.text
+    
+    // Create bible.com URL (approximate)
+    const bookChapter = reference.split(':')[0].toLowerCase().replace(/\s+/g, '')
+    const verseNum = reference.split(':')[1]
+    const bibleUrl = `https://bible.com/bible/111/${bookChapter}.${verseNum}.NIV`
+    
+    return `${reference} NIV\n${text}\n\n${bibleUrl}`
   } catch (error) {
-    console.error('Error generating verse:', error)
-    return 'Psalms 23:1 NIV\n[1] The LORD is my shepherd, I lack nothing.\nhttps://bible.com/bible/111/psa.23.1.NIV'
+    console.error('Error fetching verse of the day:', error)
+    // Fallback verse
+    return 'Psalms 23:1 NIV\nThe LORD is my shepherd, I lack nothing.\n\nhttps://bible.com/bible/111/psa.23.1.NIV'
   }
 }
 
@@ -113,8 +95,8 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Generate Bible verse
-    const bibleVerse = await generateBibleVerse(requests)
+    // Get verse of the day
+    const bibleVerse = await getVerseOfTheDay()
     
     // Format the email content
     const dateStr = formatDate()
