@@ -126,8 +126,8 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Clear all requests after sending
-    await supabase.from('prayer_requests').delete().neq('id', 0)
+    // Clear all requests after sending (disabled)
+    // await supabase.from('prayer_requests').delete().neq('id', 0)
 
     console.log('Email sent successfully!')
     return new Response(JSON.stringify({ 
