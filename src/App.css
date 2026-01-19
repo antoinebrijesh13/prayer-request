@@ -14,25 +14,46 @@
   font-weight: 600;
   letter-spacing: -0.5px;
   margin-bottom: 8px;
-  color: white;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  color: #1d1d1f;
 }
 
 .header p {
-  color: rgba(255,255,255,0.8);
+  color: #86868b;
   font-size: 15px;
 }
 
-/* Glassmorphism Card */
+/* Glass Card */
 .card {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 24px;
   margin-bottom: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.02);
+}
+
+/* Success Card */
+.success-card {
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+  padding: 20px;
+  text-align: center;
+  animation: fadeInOut 2.5s ease forwards;
+}
+
+.success-message {
+  font-size: 16px;
+  font-weight: 500;
+  color: #34c759;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  15% { opacity: 1; transform: translateY(0); }
+  85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
 }
 
 .card-title {
@@ -40,7 +61,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: rgba(255,255,255,0.8);
+  color: #86868b;
   margin-bottom: 16px;
 }
 
@@ -53,7 +74,7 @@
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: rgba(255,255,255,0.9);
+  color: #86868b;
   margin-bottom: 6px;
 }
 
@@ -61,26 +82,25 @@
 .form-group textarea {
   width: 100%;
   padding: 14px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid #e5e5e7;
   border-radius: 12px;
   font-size: 16px;
   font-family: inherit;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  color: white;
+  background: #ffffff;
+  color: #1d1d1f;
   transition: all 0.2s;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: rgba(255,255,255,0.5);
+  color: #86868b;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.3);
+  border-color: #1d1d1f;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .form-group textarea {
@@ -108,12 +128,12 @@
   background: linear-gradient(135deg, #1a1a1a 0%, #3d3d3d 50%, #1a1a1a 100%);
   color: white;
   width: 100%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
 .btn-primary:disabled {
@@ -123,18 +143,17 @@
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #f5f5f7;
+  color: #1d1d1f;
+  border: 1px solid #e5e5e7;
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #ebebed;
 }
 
 .btn-danger {
-  color: #ff6b6b;
+  color: #ff3b30;
 }
 
 /* Prayer List */
@@ -147,7 +166,7 @@
   display: flex;
   align-items: flex-start;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid #e5e5e7;
 }
 
 .prayer-item:last-child {
@@ -161,18 +180,18 @@
 .prayer-item-name {
   font-weight: 600;
   margin-bottom: 2px;
-  color: white;
+  color: #1d1d1f;
 }
 
 .prayer-item-text {
   font-size: 14px;
-  color: rgba(255,255,255,0.7);
+  color: #86868b;
 }
 
 .prayer-item-delete {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.5);
+  color: #86868b;
   cursor: pointer;
   padding: 4px 8px;
   margin-left: 8px;
@@ -182,21 +201,13 @@
 }
 
 .prayer-item-delete:hover {
-  color: #ff6b6b;
-  background: rgba(255,107,107,0.2);
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 32px 20px;
-  color: rgba(255,255,255,0.6);
-  font-size: 14px;
+  color: #ff3b30;
+  background: rgba(255, 59, 48, 0.1);
 }
 
 /* Preview */
 .preview-box {
-  background: rgba(0, 0, 0, 0.2);
+  background: #f5f5f7;
   border-radius: 12px;
   padding: 16px;
   font-size: 13px;
@@ -204,8 +215,8 @@
   white-space: pre-wrap;
   font-family: 'SF Mono', Monaco, 'Courier New', monospace;
   min-height: 150px;
-  color: rgba(255,255,255,0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #1d1d1f;
+  border: 1px solid #e5e5e7;
 }
 
 .preview-actions {
@@ -228,15 +239,14 @@
 }
 
 .toast {
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(20px);
+  background: #1d1d1f;
   color: white;
   padding: 12px 24px;
   border-radius: 30px;
   font-size: 14px;
   font-weight: 500;
   animation: slideUp 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
 @keyframes slideUp {
@@ -263,7 +273,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.4);
   backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
@@ -272,14 +282,13 @@
 }
 
 .modal {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
+  background: #ffffff;
   border-radius: 20px;
   padding: 28px;
   width: 90%;
   max-width: 340px;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
 }
 
 .modal h3 {
@@ -303,12 +312,6 @@
   flex: 1;
 }
 
-.modal-actions .btn-secondary {
-  background: #e5e5e7;
-  color: #1d1d1f;
-  border: none;
-}
-
 .modal-actions .btn-primary {
   background: linear-gradient(135deg, #ff3b30 0%, #ff6b6b 100%);
 }
@@ -326,13 +329,13 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: rgba(255,255,255,0.8);
+  color: #86868b;
 }
 
 .section-header .count {
   font-size: 13px;
-  color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.2);
+  color: #86868b;
+  background: #f5f5f7;
   padding: 2px 10px;
   border-radius: 20px;
 }

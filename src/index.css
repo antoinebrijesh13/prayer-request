@@ -7,21 +7,16 @@
 }
 
 :root {
-  --bg: #e8e8ed;
-  --card: rgba(255, 255, 255, 0.6);
-  --card-border: rgba(255, 255, 255, 0.8);
+  --bg: #ffffff;
   --text: #1d1d1f;
   --text-secondary: #86868b;
-  --accent: #0071e3;
-  --border: rgba(0, 0, 0, 0.1);
+  --border: #e5e5e7;
   --danger: #ff3b30;
-  --success: #34c759;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;

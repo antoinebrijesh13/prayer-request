@@ -34,7 +34,6 @@ export default function PrayerForm({ onAdd }) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., 최하늘 Haneul"
           />
         </div>
         
