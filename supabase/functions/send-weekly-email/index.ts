@@ -73,10 +73,18 @@ Deno.serve(async (req) => {
       SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Fetch all prayer requests
+    // Calculate last Sunday at midnight
+    const now = new Date()
+    const daysSinceSunday = now.getDay() // 0 = Sunday, 1 = Monday, etc.
+    const lastSunday = new Date(now)
+    lastSunday.setDate(now.getDate() - daysSinceSunday)
+    lastSunday.setHours(0, 0, 0, 0)
+
+    // Fetch prayer requests from this week only
     const { data: requests, error } = await supabase
       .from('prayer_requests')
       .select('*')
+      .gte('created_at', lastSunday.toISOString())
       .order('created_at', { ascending: true })
 
     if (error) {
