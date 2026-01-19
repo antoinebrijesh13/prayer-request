@@ -112,7 +112,7 @@ function App() {
             />
           </div>
           <button type="submit" className="btn btn-primary">
-            Add Request
+            Submit
           </button>
         </form>
       </div>
