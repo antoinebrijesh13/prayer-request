@@ -43,7 +43,7 @@ export default function PrayerForm({ onAdd }) {
             id="request"
             value={request}
             onChange={(e) => setRequest(e.target.value)}
-            placeholder="What would you like prayer for?"
+            placeholder="What would you like to pray for?"
             rows={3}
           />
         </div>
