@@ -23,7 +23,7 @@ function formatDate() {
   return `${month} ${day}${suffix}`
 }
 
-// Get verse of the day from ourManna API
+// Get verse of the day from ourManna API with image
 async function getVerseOfTheDay() {
   try {
     // Using ourManna API - free, no auth required
@@ -40,23 +40,87 @@ async function getVerseOfTheDay() {
     const reference = verse.details.reference
     const text = verse.details.text
     
-    // Create bible.com URL (approximate)
+    // Create bible.com URL
     const bookChapter = reference.split(':')[0].toLowerCase().replace(/\s+/g, '')
     const verseNum = reference.split(':')[1]
     const bibleUrl = `https://bible.com/bible/111/${bookChapter}.${verseNum}.NIV`
     
-    return `${reference} NIV\n${text}\n\n${bibleUrl}`
+    // Generate verse image URL using Picsum (more reliable for emails)
+    const verseImageUrl = `https://picsum.photos/seed/${Date.now()}/800/300`
+    
+    return {
+      reference,
+      text,
+      bibleUrl,
+      imageUrl: verseImageUrl
+    }
   } catch (error) {
     console.error('Error fetching verse of the day:', error)
     // Fallback verse
-    return 'Psalms 23:1 NIV\nThe LORD is my shepherd, I lack nothing.\n\nhttps://bible.com/bible/111/psa.23.1.NIV'
+    return {
+      reference: 'Psalms 23:1 NIV',
+      text: 'The LORD is my shepherd, I lack nothing.',
+      bibleUrl: 'https://bible.com/bible/111/psa.23.1.NIV',
+      imageUrl: 'https://source.unsplash.com/800x400/?nature,peaceful'
+    }
   }
 }
 
-// Format the email content
-function formatEmailContent(dateStr: string, bibleVerse: string, requests: any[]) {
+// Format the email as HTML with image
+function formatEmailHtml(dateStr: string, verse: any, requests: any[]) {
+  let requestsHtml = requests.map(r => 
+    `<p style="margin: 10px 0; font-size: 16px;"><strong>${r.name}</strong> - ${r.request}</p>`
+  ).join('')
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f7;">
+  <div style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <h1 style="font-size: 24px; font-weight: 600; color: #1d1d1f; margin-bottom: 20px;">
+      Prayer requests of ${dateStr}
+    </h1>
+    
+    <!-- Verse Image -->
+    <div style="margin-bottom: 20px; border-radius: 12px; overflow: hidden;">
+      <img src="${verse.imageUrl}" alt="Bible Verse" style="width: 100%; height: auto; display: block;">
+    </div>
+    
+    <!-- Verse Text -->
+    <div style="background: linear-gradient(135deg, #1a1a1a 0%, #3d3d3d 100%); border-radius: 12px; padding: 20px; color: white; margin-bottom: 24px;">
+      <p style="font-size: 18px; font-weight: 600; margin: 0 0 10px 0;">
+        ${verse.reference}
+      </p>
+      <p style="font-size: 16px; line-height: 1.6; margin: 0 0 15px 0; font-style: italic;">
+        ${verse.text}
+      </p>
+      <a href="${verse.bibleUrl}" style="color: rgba(255,255,255,0.9); font-size: 14px;">
+        ${verse.bibleUrl}
+      </a>
+    </div>
+    
+    <!-- Prayer Requests -->
+    <div style="border-top: 1px solid #e5e5e7; padding-top: 20px;">
+      <h2 style="font-size: 18px; font-weight: 600; color: #1d1d1f; margin-bottom: 16px;">
+        Prayer Requests
+      </h2>
+      ${requestsHtml}
+    </div>
+  </div>
+</body>
+</html>
+</html>
+  `.trim()
+}
+
+// Plain text fallback
+function formatEmailText(dateStr: string, verse: any, requests: any[]) {
   let content = `Prayer requests of ${dateStr}\n\n`
-  content += bibleVerse + '\n\n'
+  content += `${verse.reference}\n${verse.text}\n\n${verse.bibleUrl}\n\n`
   
   requests.forEach(r => {
     content += `${r.name} - ${r.request}\n\n`
@@ -103,14 +167,15 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Get verse of the day
-    const bibleVerse = await getVerseOfTheDay()
+    // Get verse of the day with image
+    const verse = await getVerseOfTheDay()
     
     // Format the email content
     const dateStr = formatDate()
-    const emailContent = formatEmailContent(dateStr, bibleVerse, requests)
+    const htmlContent = formatEmailHtml(dateStr, verse, requests)
+    const textContent = formatEmailText(dateStr, verse, requests)
 
-    // Send email via Resend
+    // Send email via Resend with HTML
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -121,7 +186,8 @@ Deno.serve(async (req) => {
         from: 'Prayer Requests <onboarding@resend.dev>',
         to: [RECIPIENT_EMAIL],
         subject: `Prayer Requests - ${dateStr}`,
-        text: emailContent
+        html: htmlContent,
+        text: textContent
       })
     })
 
